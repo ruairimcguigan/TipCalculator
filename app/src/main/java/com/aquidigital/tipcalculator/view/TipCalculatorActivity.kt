@@ -1,17 +1,19 @@
 package com.aquidigital.tipcalculator.view
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProviders
 import com.aquidigital.tipcalculator.R
 import com.aquidigital.tipcalculator.databinding.ActivityTipCalculatorBinding
+import com.aquidigital.tipcalculator.viewmodel.CalculatorViewModel
+import com.google.android.material.snackbar.Snackbar
 
-import kotlinx.android.synthetic.main.activity_tip_calculator.*
-
-class TipCalculatorActivity : AppCompatActivity() {
+class TipCalculatorActivity : AppCompatActivity(),
+    TipCalculationSaveDialog.Callback,
+    TipCalculationLoadDialog.Callback {
 
     lateinit var binding: ActivityTipCalculatorBinding
 
@@ -19,19 +21,46 @@ class TipCalculatorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_tip_calculator)
-        binding.vm = CalculatorViewModel(application)
+        binding.vm = ViewModelProviders.of(this).get(CalculatorViewModel::class.java)
         setSupportActionBar(binding.toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_tip_calculator, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_save -> {
+                showSaveDialog()
+                true
+            }
+            R.id.action_load -> {
+                showLoadDialog()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showSaveDialog() {
+        val saveFragment = TipCalculationSaveDialog()
+        saveFragment.show(supportFragmentManager, "SaveDialog")
+    }
+
+    private fun showLoadDialog() {
+        val saveFragment = TipCalculationLoadDialog()
+        saveFragment.show(supportFragmentManager, "LoadDialog")
+    }
+
+    override fun loadTipCallback(name:String) {
+        // Ask Viewmodel to load the tip by this name
+        Snackbar.make(binding.root, "Loaded $name", Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun saveTipCallback(name: String) {
+        binding.vm?.saveCurrentTip(name)
+        Snackbar.make(binding.root, "Saved $name", Snackbar.LENGTH_SHORT).show()
     }
 }

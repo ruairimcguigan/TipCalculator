@@ -2,13 +2,12 @@ package com.aquidigital.tipcalculator.model
 
 import android.app.Application
 import com.aquidigital.tipcalculator.R
-import com.aquidigital.tipcalculator.view.CalculatorViewModel
+import com.aquidigital.tipcalculator.viewmodel.CalculatorViewModel
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.Mockito
@@ -85,5 +84,31 @@ class CalculatorViewModelTest {
 
         // then
         verify(mockCalc, never()).getTipCalculation(anyDouble(), anyInt())
+    }
+
+    @Test
+    fun testSaveCurrentTip() {
+
+        // given
+        val stub = TipCalculation(checkAmount = 10.00, tipAmount = 1.5, grandTotal = 11.5)
+        val stubLocationName = "Green Eggs and Bacon"
+
+        fun setupTipCalculation() {
+            viewmodel.inputCheckAmount = "10.00"
+            viewmodel.inputTipPercentage = "15"
+
+            `when`(mockCalc.getTipCalculation(10.00, 15)).thenReturn(stub)
+        }
+
+        setupTipCalculation()
+
+        // when
+        viewmodel.calculateTip()
+        viewmodel.saveCurrentTip(stubLocationName)
+
+        // then
+        verify(mockCalc).saveCalculation(stub.copy(locationName = stubLocationName))
+        assertEquals(stubLocationName, viewmodel.locationName)
+
     }
 }

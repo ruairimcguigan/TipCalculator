@@ -1,8 +1,9 @@
 package com.aquidigital.tipcalculator.model
 
+import androidx.lifecycle.LiveData
 import java.math.RoundingMode
 
-class Calculator() {
+class Calculator(val repository: TipCalculationRepository = TipCalculationRepository()) {
 
     fun getTipCalculation(checkAmount: Double, tipPct: Int): TipCalculation {
 
@@ -19,5 +20,17 @@ class Calculator() {
             tipAmount = tipAmount,
             grandTotal = grandTotal
         )
+    }
+
+    fun saveCalculation(tipCalc: TipCalculation) {
+        repository.saveTipCalculation(tipCalc)
+    }
+
+    fun loadTipCalculationByLocation(location: String) : TipCalculation? {
+        return repository.loadTipCalculationByLocation(location)
+    }
+
+    fun loadCalculation(): LiveData<List<TipCalculation>> {
+        return repository.loadSavedTipCalculations()
     }
 }
