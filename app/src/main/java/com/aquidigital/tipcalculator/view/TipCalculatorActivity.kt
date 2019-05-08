@@ -50,12 +50,12 @@ class TipCalculatorActivity : AppCompatActivity(),
     }
 
     private fun showLoadDialog() {
-        val saveFragment = TipCalculationLoadDialog()
-        saveFragment.show(supportFragmentManager, "LoadDialog")
+        val loadDialog = TipCalculationLoadDialog()
+        loadDialog.show(supportFragmentManager, "LoadDialog")
     }
 
-    override fun loadTipCallback(name:String) {
-        // Ask Viewmodel to load the tip by this name
+    override fun onTipSelected(name:String) {
+        binding.vm?.loadTipCalculation(name)
         Snackbar.make(binding.root, "Loaded $name", Snackbar.LENGTH_SHORT).show()
     }
 

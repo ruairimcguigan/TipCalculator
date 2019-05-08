@@ -2,6 +2,8 @@ package com.aquidigital.tipcalculator.viewmodel
 
 import android.app.Application
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.aquidigital.tipcalculator.R
 import com.aquidigital.tipcalculator.model.Calculator
 import com.aquidigital.tipcalculator.model.TipCalculation
@@ -47,5 +49,26 @@ class CalculatorViewModel @JvmOverloads constructor (
 
         calculator.saveCalculation(tipToSave)
         updateOutputs(tipToSave)
+    }
+
+    fun loadTipCalculation(name:String) {
+        val tipCalculation = calculator.loadTipCalculationByLocation(name)
+
+        if (tipCalculation != null) {
+            inputCheckAmount = tipCalculation.checkAmount.toString()
+            inputTipPercentage = tipCalculation.tipPct.toString()
+
+            updateOutputs(tipCalculation)
+            notifyChange()
+        }
+    }
+
+    fun loadSavedTipCalculationSummaries() : LiveData<List<TipCalculationSummaryItem>> {
+        return Transformations.map(calculator.loadSavedTipCalculations()) { tipCalculationObjects ->
+            tipCalculationObjects.map {
+                TipCalculationSummaryItem(it.locationName,
+                    getApplication<Application>().getString(R.string.pound_amount, it.grandTotal))
+            }
+        }
     }
 }
